@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-04-30 13:55:45
- * @LastEditTime: 2021-04-30 15:07:53
+ * @LastEditTime: 2021-04-30 15:08:39
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /pmdk-demo/libpmem_demo.cc
@@ -56,7 +56,7 @@ static void random_write(worker_context_t* context)
 static void seq_write(worker_context_t* context)
 {
     uint64_t _start = context->base;
-    size_t _end = _start + context->base + context->size;
+    size_t _end = _start + context->size;
     uint64_t _dest = _start;
     uint32_t _bs = context->bs;
     uint64_t _src = (uint64_t)malloc(_bs);
