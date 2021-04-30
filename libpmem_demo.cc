@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-04-30 13:55:45
- * @LastEditTime: 2021-04-30 14:22:18
+ * @LastEditTime: 2021-04-30 14:27:36
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /pmdk-demo/libpmem_demo.cc
@@ -43,6 +43,8 @@ int main(int argc, char** argv)
     char _path[128] = "/home/pmem0/libpmem-demo";
     int _is_pmem;
     void* _base = pmem_map_file(_path, _len, PMEM_FILE_CREATE, 0666, &_len, &_is_pmem);
-    printf("%llx %d\n", (uint64_t)_base, _is_pmem);
+    if (_base != nullptr) {
+        printf("[pmem_map_file][addr:0x%llx][len:%.2fGB][is_pmem:%d]\n", (uint64_t)_base, 1.0 * _len / (1024UL * 1024 * 1024), _is_pmem);
+    }
     return 0;
 }
