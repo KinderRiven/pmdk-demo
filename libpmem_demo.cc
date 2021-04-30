@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-04-30 13:55:45
- * @LastEditTime: 2021-04-30 15:19:22
+ * @LastEditTime: 2021-04-30 15:19:52
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /pmdk-demo/libpmem_demo.cc
@@ -56,7 +56,7 @@ static uint32_t g_num_thread = 4;
 
 static uint32_t g_block_size = 64;
 
-static void seq_write(worker_context_t* context)
+static void random_write(worker_context_t* context)
 {
     cpu_set_t mask;
     CPU_ZERO(&mask);
