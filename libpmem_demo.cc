@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-04-30 13:55:45
- * @LastEditTime: 2021-04-30 15:28:28
+ * @LastEditTime: 2021-04-30 15:30:14
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /pmdk-demo/libpmem_demo.cc
@@ -77,7 +77,8 @@ static void random_write(worker_context_t* context)
     for (int i = 0; i < g_num_loop; i++) {
         uint64_t _dest = _start;
         while (_dest < _end) {
-            pmem_memcpy_persist((void*)_dest, (void*)_src, _bs);
+            // pmem_memcpy_persist((void*)_dest, (void*)_src, _bs);
+            pmem_memmove_nodrain((void*)_dest, (void*)_src, _bs);
             _dest += _skip;
         }
     }
@@ -111,7 +112,8 @@ static void seq_write(worker_context_t* context)
     for (int i = 0; i < g_num_loop; i++) {
         uint64_t _dest = _start;
         while (_dest < _end) {
-            pmem_memcpy_persist((void*)_dest, (void*)_src, _bs);
+            // pmem_memcpy_persist((void*)_dest, (void*)_src, _bs);
+            pmem_memmove_nodrain((void*)_dest, (void*)_src, _bs);
             _dest += _bs;
         }
     }
