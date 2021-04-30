@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-04-30 13:55:45
- * @LastEditTime: 2021-04-30 16:00:47
+ * @LastEditTime: 2021-04-30 16:01:17
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /pmdk-demo/libpmem_demo.cc
@@ -72,7 +72,7 @@ static void random_write(worker_context_t* context)
     uint32_t _skip = _bs * 4;
     uint64_t _src = (uint64_t)aligned_alloc(256UL, _bs);
 
-    printf("[rand][%d][%llu][bs:%dB][loop:%d][size:%.2fMB]\n", context->thread_id, _start, _bs, g_num_loop, 1.0 * context->size / (1024UL * 1024));
+    printf("[rand][%d][0x%llx][bs:%dB][loop:%d][size:%.2fMB]\n", context->thread_id, _start, _bs, g_num_loop, 1.0 * context->size / (1024UL * 1024));
     Timer _timer;
     _timer.Start();
     for (int i = 0; i < g_num_loop; i++) {
@@ -111,7 +111,7 @@ static void seq_write(worker_context_t* context)
     uint32_t _bs = context->bs;
     uint64_t _src = (uint64_t)aligned_alloc(256UL, _bs);
 
-    printf("[seq][%d][bs:%dB][loop:%d][size:%.2fMB]\n", context->thread_id, _bs, g_num_loop, 1.0 * context->size / (1024UL * 1024));
+    printf("[seq][%d][0x%llx][bs:%dB][loop:%d][size:%.2fMB]\n", context->thread_id, _start, _bs, g_num_loop, 1.0 * context->size / (1024UL * 1024));
     Timer _timer;
     _timer.Start();
     for (int i = 0; i < g_num_loop; i++) {
