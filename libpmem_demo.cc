@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-04-30 13:55:45
- * @LastEditTime: 2021-04-30 15:46:53
+ * @LastEditTime: 2021-04-30 15:51:41
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /pmdk-demo/libpmem_demo.cc
@@ -70,7 +70,7 @@ static void random_write(worker_context_t* context)
     size_t _end = _start + context->size;
     uint32_t _bs = context->bs;
     uint32_t _skip = _bs * 4;
-    uint64_t _src = (uint64_t)malloc(_bs);
+    uint64_t _src = (uint64_t)aligned_alloc(256UL, _bs);
 
     printf("[rand][%d][bs:%dB][loop:%d][size:%.2fMB]\n", context->thread_id, _bs, g_num_loop, 1.0 * context->size / (1024UL * 1024));
     Timer _timer;
@@ -107,7 +107,7 @@ static void seq_write(worker_context_t* context)
     uint64_t _start = context->base;
     size_t _end = _start + context->size;
     uint32_t _bs = context->bs;
-    uint64_t _src = (uint64_t)malloc(_bs);
+    uint64_t _src = = (uint64_t)aligned_alloc(256UL, _bs);
 
     printf("[seq][%d][bs:%dB][loop:%d][size:%.2fMB]\n", context->thread_id, _bs, g_num_loop, 1.0 * context->size / (1024UL * 1024));
     Timer _timer;
