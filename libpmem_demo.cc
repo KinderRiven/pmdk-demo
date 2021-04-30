@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-04-30 13:55:45
- * @LastEditTime: 2021-04-30 15:06:02
+ * @LastEditTime: 2021-04-30 15:07:53
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /pmdk-demo/libpmem_demo.cc
@@ -90,8 +90,8 @@ int main(int argc, char** argv)
     worker_context_t _ctxs[64];
     std::thread _mthreads[64];
     for (int i = 0; i < g_num_thread; i++) {
+        _ctxs[i].base = (uint64_t)_base + (i * _ctxs[i].size);
         _ctxs[i].size = _len / g_num_thread;
-        _ctxs[i].base = i * _ctxs[i].size;
         _ctxs[i].bs = g_block_size;
         _mthreads[i] = std::thread(seq_write, &_ctxs[i]);
     }
