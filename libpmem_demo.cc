@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-04-30 13:55:45
- * @LastEditTime: 2021-04-30 15:59:52
+ * @LastEditTime: 2021-04-30 16:00:47
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /pmdk-demo/libpmem_demo.cc
@@ -165,8 +165,8 @@ int main(int argc, char** argv)
     std::thread _mthreads[64];
     for (int i = 0; i < g_num_thread; i++) {
         _ctxs[i].thread_id = i;
-        _ctxs[i].base = (uint64_t)_base + (i * _ctxs[i].size);
         _ctxs[i].size = _len / g_num_thread;
+        _ctxs[i].base = (uint64_t)_base + (i * _ctxs[i].size);
         _ctxs[i].bs = g_block_size;
         if (_rand) {
             _mthreads[i] = std::thread(random_write, &_ctxs[i]);
