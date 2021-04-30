@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-04-30 13:55:45
- * @LastEditTime: 2021-04-30 16:01:17
+ * @LastEditTime: 2021-04-30 16:01:47
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /pmdk-demo/libpmem_demo.cc
@@ -82,8 +82,8 @@ static void random_write(worker_context_t* context)
             // pmem_memmove_persist((void*)_dest, (void*)_src, _bs);
             // pmem_memmove_nodrain((void*)_dest, (void*)_src, _bs);
             _dest += _skip;
-            assert(_dest % 64 == 0);
-            assert(_src % 64 == 0);
+            // assert(_dest % 64 == 0);
+            // assert(_src % 64 == 0);
         }
     }
     _timer.Stop();
@@ -121,8 +121,8 @@ static void seq_write(worker_context_t* context)
             // pmem_memmove_persist((void*)_dest, (void*)_src, _bs);
             // pmem_memmove_nodrain((void*)_dest, (void*)_src, _bs);
             _dest += _bs;
-            assert(_dest % 64 == 0);
-            assert(_src % 64 == 0);
+            // assert(_dest % 64 == 0);
+            // assert(_src % 64 == 0);
         }
     }
     _timer.Stop();
