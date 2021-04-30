@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-04-30 13:55:45
- * @LastEditTime: 2021-04-30 16:01:47
+ * @LastEditTime: 2021-04-30 16:06:18
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /pmdk-demo/libpmem_demo.cc
@@ -36,6 +36,7 @@
 #include <vector>
 
 #include "libpmem.h"
+#include "persist.h"
 #include "timer.h"
 
 struct worker_context_t {
@@ -78,7 +79,8 @@ static void random_write(worker_context_t* context)
     for (int i = 0; i < g_num_loop; i++) {
         uint64_t _dest = _start;
         while (_dest < _end) {
-            pmem_memcpy_persist((void*)_dest, (void*)_src, _bs);
+            nontemporal_store((char*)_dest, (char*)_src, _bs);
+            // pmem_memcpy_persist((void*)_dest, (void*)_src, _bs);
             // pmem_memmove_persist((void*)_dest, (void*)_src, _bs);
             // pmem_memmove_nodrain((void*)_dest, (void*)_src, _bs);
             _dest += _skip;
@@ -117,7 +119,8 @@ static void seq_write(worker_context_t* context)
     for (int i = 0; i < g_num_loop; i++) {
         uint64_t _dest = _start;
         while (_dest < _end) {
-            pmem_memcpy_persist((void*)_dest, (void*)_src, _bs);
+            nontemporal_store((char*)_dest, (char*)_src, _bs);
+            // pmem_memcpy_persist((void*)_dest, (void*)_src, _bs);
             // pmem_memmove_persist((void*)_dest, (void*)_src, _bs);
             // pmem_memmove_nodrain((void*)_dest, (void*)_src, _bs);
             _dest += _bs;
