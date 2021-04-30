@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-04-30 13:55:45
- * @LastEditTime: 2021-04-30 15:22:50
+ * @LastEditTime: 2021-04-30 15:22:59
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /pmdk-demo/libpmem_demo.cc
@@ -66,7 +66,6 @@ static void random_write(worker_context_t* context)
         printf("threadpool, set thread affinity failed.\n");
     }
 
-    uint64_t _wcnt = 0;
     uint64_t _start = context->base;
     size_t _end = _start + context->size;
     uint32_t _bs = context->bs;
@@ -79,7 +78,6 @@ static void random_write(worker_context_t* context)
         while (_dest < _end) {
             pmem_memcpy_persist((void*)_dest, (void*)_src, _bs);
             _dest += (_bs * 4);
-            // _wcnt++;
         }
     }
     _timer.Stop();
