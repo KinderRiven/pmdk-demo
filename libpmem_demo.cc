@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-04-30 13:55:45
- * @LastEditTime: 2021-04-30 16:36:49
+ * @LastEditTime: 2021-04-30 16:38:21
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /pmdk-demo/libpmem_demo.cc
@@ -54,11 +54,8 @@ public:
 static int numa_0[] = {
     0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 21, 22, 23, 24, 25, 26, 27, 28, 29 //, 11, 13, 15, 17, 19, 31, 33,35, 37, 39
 };
-
 static uint32_t g_num_loop = 5;
-
 static uint32_t g_num_thread = 4;
-
 static uint32_t g_block_size = 64;
 
 static void random_write(worker_context_t* context)
@@ -88,8 +85,6 @@ static void random_write(worker_context_t* context)
             // pmem_memmove_persist((void*)_dest, (void*)_src, _bs);
             // pmem_memmove_nodrain((void*)_dest, (void*)_src, _bs);
             _dest += _skip;
-            // assert(_dest % 64 == 0);
-            // assert(_src % 64 == 0);
         }
     }
     _timer.Stop();
@@ -132,8 +127,6 @@ static void seq_write(worker_context_t* context)
             // pmem_memmove_persist((void*)_dest, (void*)_src, _bs);
             // pmem_memmove_nodrain((void*)_dest, (void*)_src, _bs);
             _dest += _bs;
-            // assert(_dest % 64 == 0);
-            // assert(_src % 64 == 0);
         }
     }
     _timer.Stop();
