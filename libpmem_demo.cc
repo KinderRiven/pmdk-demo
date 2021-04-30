@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-04-30 13:55:45
- * @LastEditTime: 2021-04-30 15:43:29
+ * @LastEditTime: 2021-04-30 15:45:01
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /pmdk-demo/libpmem_demo.cc
@@ -86,7 +86,7 @@ static void random_write(worker_context_t* context)
     }
     _timer.Stop();
 
-    size_t _sz = g_num_loop * context->size;
+    size_t _sz = g_num_loop * context->size / 4;
     size_t _cnt = _sz / _skip;
     double _sec = _timer.GetSeconds();
     double _lat = _timer.Get() / _cnt;
