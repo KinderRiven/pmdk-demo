@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-04-30 13:55:45
- * @LastEditTime: 2021-04-30 15:53:35
+ * @LastEditTime: 2021-04-30 15:56:29
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /pmdk-demo/libpmem_demo.cc
@@ -135,6 +135,22 @@ static void seq_write(worker_context_t* context)
 
 int main(int argc, char** argv)
 {
+    int _rand = 0;
+    for (int i = 0; i < argc; i++) {
+        char __junk;
+        uint64_t __n;
+        if (sscanf(argv[i], "--bs=%llu%c", &__n, &__junk) == 1) {
+            g_block_size = __n;
+        } else if (sscanf(argv[i], "--thread=%llu%c", &__n, &__junk) == 1) {
+            g_num_thread = __n;
+        } else if (sscanf(argv[i], "--rand=%llu%c", &__n, &__junk) == 1) {
+            _rand = __n;
+        } else if (i > 0) {
+            printf("error (%s)!\n", argv[i]);
+            return 0;
+        }
+    }
+
     int _is_pmem;
     size_t _len = 8UL * 1024 * 1024 * 1024;
     char _path[128] = "/home/pmem0/libpmem-demo";
@@ -150,7 +166,11 @@ int main(int argc, char** argv)
         _ctxs[i].base = (uint64_t)_base + (i * _ctxs[i].size);
         _ctxs[i].size = _len / g_num_thread;
         _ctxs[i].bs = g_block_size;
-        _mthreads[i] = std::thread(random_write, &_ctxs[i]);
+        if (_rand) {
+            _mthreads[i] = std::thread(random_write, &_ctxs[i]);
+        } else {
+            _mthreads[i] = std::thread(seq_write, &_ctxs[i]);
+        }
     }
     for (int i = 0; i < g_num_thread; i++) {
         _mthreads[i].join();
