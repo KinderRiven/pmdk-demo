@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-04-30 13:55:45
- * @LastEditTime: 2021-04-30 15:30:14
+ * @LastEditTime: 2021-04-30 15:31:31
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /pmdk-demo/libpmem_demo.cc
@@ -77,8 +77,8 @@ static void random_write(worker_context_t* context)
     for (int i = 0; i < g_num_loop; i++) {
         uint64_t _dest = _start;
         while (_dest < _end) {
-            // pmem_memcpy_persist((void*)_dest, (void*)_src, _bs);
-            pmem_memmove_nodrain((void*)_dest, (void*)_src, _bs);
+            pmem_memcpy_persist((void*)_dest, (void*)_src, _bs);
+            // pmem_memmove_nodrain((void*)_dest, (void*)_src, _bs);
             _dest += _skip;
         }
     }
@@ -112,8 +112,8 @@ static void seq_write(worker_context_t* context)
     for (int i = 0; i < g_num_loop; i++) {
         uint64_t _dest = _start;
         while (_dest < _end) {
-            // pmem_memcpy_persist((void*)_dest, (void*)_src, _bs);
-            pmem_memmove_nodrain((void*)_dest, (void*)_src, _bs);
+            pmem_memcpy_persist((void*)_dest, (void*)_src, _bs);
+            // pmem_memmove_nodrain((void*)_dest, (void*)_src, _bs);
             _dest += _bs;
         }
     }
@@ -144,7 +144,7 @@ int main(int argc, char** argv)
         _ctxs[i].base = (uint64_t)_base + (i * _ctxs[i].size);
         _ctxs[i].size = _len / g_num_thread;
         _ctxs[i].bs = g_block_size;
-        _mthreads[i] = std::thread(seq_write, &_ctxs[i]);
+        _mthreads[i] = std::thread(random_write, &_ctxs[i]);
     }
 
     for (int i = 0; i < g_num_thread; i++) {
