@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-04-30 13:55:45
- * @LastEditTime: 2021-04-30 15:15:35
+ * @LastEditTime: 2021-04-30 15:16:41
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /pmdk-demo/libpmem_demo.cc
@@ -50,6 +50,8 @@ static int numa_0[] = {
     0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 21, 22, 23, 24, 25, 26, 27, 28, 29 //, 11, 13, 15, 17, 19, 31, 33,35, 37, 39
 };
 
+static uint32_t g_num_loop = 5;
+
 static uint32_t g_num_thread = 4;
 
 static uint32_t g_block_size = 256;
@@ -75,7 +77,7 @@ static void seq_write(worker_context_t* context)
 
     Timer _timer;
     _timer.Start();
-    for (int i = 0; i < 5; i++) {
+    for (int i = 0; i < g_num_loop; i++) {
         uint64_t _dest = _start;
         while (_dest < _end) {
             pmem_memcpy_persist((void*)_dest, (void*)_src, _bs);
@@ -84,7 +86,7 @@ static void seq_write(worker_context_t* context)
     }
     _timer.Stop();
 
-    size_t _sz = context->size;
+    size_t _sz = g_num_loop * context->size;
     size_t _cnt = _sz / _bs;
     double _sec = _timer.GetSeconds();
     double _lat = _timer.Get() / _cnt;
