@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-04-30 13:55:45
- * @LastEditTime: 2021-04-30 15:38:29
+ * @LastEditTime: 2021-04-30 15:40:16
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /pmdk-demo/libpmem_demo.cc
@@ -150,7 +150,6 @@ int main(int argc, char** argv)
         _ctxs[i].bs = g_block_size;
         _mthreads[i] = std::thread(random_write, &_ctxs[i]);
     }
-
     for (int i = 0; i < g_num_thread; i++) {
         _mthreads[i].join();
     }
