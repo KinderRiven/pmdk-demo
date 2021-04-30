@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-04-30 13:55:45
- * @LastEditTime: 2021-04-30 15:22:59
+ * @LastEditTime: 2021-04-30 15:23:30
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /pmdk-demo/libpmem_demo.cc
@@ -69,6 +69,7 @@ static void random_write(worker_context_t* context)
     uint64_t _start = context->base;
     size_t _end = _start + context->size;
     uint32_t _bs = context->bs;
+    uint32_t _skip = _bs * 4;
     uint64_t _src = (uint64_t)malloc(_bs);
 
     Timer _timer;
@@ -77,13 +78,13 @@ static void random_write(worker_context_t* context)
         uint64_t _dest = _start;
         while (_dest < _end) {
             pmem_memcpy_persist((void*)_dest, (void*)_src, _bs);
-            _dest += (_bs * 4);
+            _dest += _skip;
         }
     }
     _timer.Stop();
 
     size_t _sz = g_num_loop * context->size;
-    size_t _cnt = _sz / (_bs * 4);
+    size_t _cnt = _sz / _skip;
     double _sec = _timer.GetSeconds();
     double _lat = _timer.Get() / _cnt;
     printf("[%d][cost:%.2fseconds][cnt:%zu][lat:%.2fns][iops:%.2f][bw:%.2fMB/s]\n",
