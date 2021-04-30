@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-04-30 13:55:45
- * @LastEditTime: 2021-04-30 14:27:36
+ * @LastEditTime: 2021-04-30 15:06:02
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /pmdk-demo/libpmem_demo.cc
@@ -36,15 +36,68 @@
 #include <vector>
 
 #include "libpmem.h"
+#include "timer.h"
+
+struct worker_context_t {
+public:
+    uint64_t base;
+    size_t size;
+    uint32_t bs;
+};
+
+static uint32_t g_num_thread = 4;
+
+static uint32_t g_block_size = 256;
+
+static void random_write(worker_context_t* context)
+{
+}
+
+static void seq_write(worker_context_t* context)
+{
+    uint64_t _start = context->base;
+    size_t _end = _start + context->base + context->size;
+    uint64_t _dest = _start;
+    uint32_t _bs = context->bs;
+    uint64_t _src = (uint64_t)malloc(_bs);
+    Timer _timer;
+
+    _timer.Start();
+    while (_dest < _end) {
+        pmem_memcpy_persist((void*)_dest, (void*)_src, _bs);
+        _dest += _bs;
+    }
+    _timer.Stop();
+
+    size_t _sz = context->size;
+    size_t _cnt = _sz / _bs;
+    double _sec = _timer.GetSeconds();
+    double _lat = _timer.Get() / _cnt;
+    printf("[cost:%.2fseconds][cnt:%zu][lat:%.2fns[iops:%.2f][bw:%.2fMB/s]\n",
+        _sec, _cnt, _lat, 1.0 * _cnt / _sec, 1.0 * _sz / (_sec * 1024UL * 1024));
+}
 
 int main(int argc, char** argv)
 {
+    int _is_pmem;
     size_t _len = 8UL * 1024 * 1024 * 1024;
     char _path[128] = "/home/pmem0/libpmem-demo";
-    int _is_pmem;
     void* _base = pmem_map_file(_path, _len, PMEM_FILE_CREATE, 0666, &_len, &_is_pmem);
     if (_base != nullptr) {
         printf("[pmem_map_file][addr:0x%llx][len:%.2fGB][is_pmem:%d]\n", (uint64_t)_base, 1.0 * _len / (1024UL * 1024 * 1024), _is_pmem);
     }
+
+    worker_context_t _ctxs[64];
+    std::thread _mthreads[64];
+    for (int i = 0; i < g_num_thread; i++) {
+        _ctxs[i].size = _len / g_num_thread;
+        _ctxs[i].base = i * _ctxs[i].size;
+        _ctxs[i].bs = g_block_size;
+        _mthreads[i] = std::thread(seq_write, &_ctxs[i]);
+    }
+    for (int i = 0; i < g_num_thread; i++) {
+        _mthreads[i].join();
+    }
+    pmem_unmap(_base, _len);
     return 0;
 }
