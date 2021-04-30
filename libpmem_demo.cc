@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-04-30 13:55:45
- * @LastEditTime: 2021-04-30 15:24:29
+ * @LastEditTime: 2021-04-30 15:25:07
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /pmdk-demo/libpmem_demo.cc
@@ -71,12 +71,13 @@ static void random_write(worker_context_t* context)
     uint32_t _bs = context->bs;
     uint32_t _skip = _bs * 4;
     uint64_t _src = (uint64_t)malloc(_bs);
-    assert(_src % 64 == 0);
 
     Timer _timer;
     _timer.Start();
     for (int i = 0; i < g_num_loop; i++) {
         uint64_t _dest = _start;
+        assert(_src % 64 == 0);
+        assert(_dest % 64 == 0);
         while (_dest < _end) {
             pmem_memcpy_persist((void*)_dest, (void*)_src, _bs);
             _dest += _skip;
