@@ -1,15 +1,15 @@
 ###
  # @Author: your name
  # @Date: 2021-04-30 16:27:19
- # @LastEditTime: 2021-04-30 18:36:41
+ # @LastEditTime: 2021-04-30 18:37:00
  # @LastEditors: Please set LastEditors
  # @Description: In User Settings Edit
  # @FilePath: /pmdk-demo/run_test.sh
 ### 
 
-s_bs=(64 128 256 512 1024 4096 16384 65536)
+s_bs=(64 128 256)
 s_type=(rr rw sr sw)
-s_thread=(1 2 4 6 8 10)
+s_thread=(1 2 4)
 
 for ((i=0; i<${#s_type[*]}; i+=1))
 do
