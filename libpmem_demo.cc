@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-04-30 13:55:45
- * @LastEditTime: 2021-04-30 16:38:21
+ * @LastEditTime: 2021-04-30 16:53:20
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /pmdk-demo/libpmem_demo.cc
@@ -143,9 +143,88 @@ static void seq_write(worker_context_t* context)
     context->bw = _bw;
 }
 
+static void random_read(worker_context_t* context)
+{
+    cpu_set_t mask;
+    CPU_ZERO(&mask);
+    CPU_SET(numa_0[context->thread_id], &mask);
+
+    if (pthread_setaffinity_np(pthread_self(), sizeof(mask), &mask) < 0) {
+        printf("threadpool, set thread affinity failed.\n");
+    }
+
+    uint64_t _start = context->base;
+    size_t _end = _start + context->size;
+    uint32_t _bs = context->bs;
+    uint32_t _skip = _bs * 4;
+    uint64_t _src = (uint64_t)aligned_alloc(256UL, _bs);
+
+    printf("[rand][%d][0x%llx][bs:%dB][loop:%d][size:%.2fMB]\n", context->thread_id, _start, _bs, g_num_loop, 1.0 * context->size / (1024UL * 1024));
+    Timer _timer;
+    _timer.Start();
+    for (int i = 0; i < g_num_loop; i++) {
+        uint64_t _dest = _start;
+        while (_dest < _end) {
+            memcpy((char*)_src, (char*)_dest, _bs);
+            _dest += _skip;
+        }
+    }
+    _timer.Stop();
+
+    size_t _sz = g_num_loop * context->size / 4;
+    size_t _cnt = _sz / _bs;
+    double _sec = _timer.GetSeconds();
+    double _lat = _timer.Get() / _cnt;
+    double _iops = 1.0 * _cnt / _sec;
+    double _bw = 1.0 * _sz / (_sec * 1024UL * 1024);
+    printf("[%d][cost:%.2fseconds][cnt:%zu][lat:%.2fns][iops:%.2f][bw:%.2fMB/s]\n",
+        context->thread_id, _sec, _cnt, _lat, _iops, _bw);
+    context->lat = _lat;
+    context->bw = _bw;
+}
+
+static void seq_read(worker_context_t* context)
+{
+    cpu_set_t mask;
+    CPU_ZERO(&mask);
+    CPU_SET(numa_0[context->thread_id], &mask);
+
+    if (pthread_setaffinity_np(pthread_self(), sizeof(mask), &mask) < 0) {
+        printf("threadpool, set thread affinity failed.\n");
+    }
+
+    uint64_t _start = context->base;
+    size_t _end = _start + context->size;
+    uint32_t _bs = context->bs;
+    uint64_t _src = (uint64_t)aligned_alloc(256UL, _bs);
+
+    printf("[seq][%d][0x%llx][bs:%dB][loop:%d][size:%.2fMB]\n", context->thread_id, _start, _bs, g_num_loop, 1.0 * context->size / (1024UL * 1024));
+    Timer _timer;
+    _timer.Start();
+    for (int i = 0; i < g_num_loop; i++) {
+        uint64_t _dest = _start;
+        while (_dest < _end) {
+            memcpy((char*)_src, (char*)_dest, _bs);
+            _dest += _bs;
+        }
+    }
+    _timer.Stop();
+
+    size_t _sz = g_num_loop * context->size;
+    size_t _cnt = _sz / _bs;
+    double _sec = _timer.GetSeconds();
+    double _lat = _timer.Get() / _cnt;
+    double _iops = 1.0 * _cnt / _sec;
+    double _bw = 1.0 * _sz / (_sec * 1024UL * 1024);
+    printf("[%d][cost:%.2fseconds][cnt:%zu][lat:%.2fns][iops:%.2f][bw:%.2fMB/s]\n",
+        context->thread_id, _sec, _cnt, _lat, _iops, _bw);
+    context->lat = _lat;
+    context->bw = _bw;
+}
+
 int main(int argc, char** argv)
 {
-    int _rand = 0;
+    char _type[64] = "rw";
     for (int i = 0; i < argc; i++) {
         char __junk;
         uint64_t __n;
@@ -153,8 +232,8 @@ int main(int argc, char** argv)
             g_block_size = __n;
         } else if (sscanf(argv[i], "--thread=%llu%c", &__n, &__junk) == 1) {
             g_num_thread = __n;
-        } else if (sscanf(argv[i], "--rand=%llu%c", &__n, &__junk) == 1) {
-            _rand = __n;
+        } else if (strncmp(argv[i], "--type=", 7) == 0) {
+            strcpy(_type, argv[i] + 7);
         } else if (i > 0) {
             printf("error (%s)!\n", argv[i]);
             return 0;
@@ -176,10 +255,14 @@ int main(int argc, char** argv)
         _ctxs[i].size = _len / g_num_thread;
         _ctxs[i].base = (uint64_t)_base + (i * _ctxs[i].size);
         _ctxs[i].bs = g_block_size;
-        if (_rand) {
+        if (memcmp(_type, "rw", 2) == 0) {
             _mthreads[i] = std::thread(random_write, &_ctxs[i]);
-        } else {
+        } else if (memcmp(_type, "sw", 2) == 0) {
             _mthreads[i] = std::thread(seq_write, &_ctxs[i]);
+        } else if (memcmp(_type, "rr", 2) == 0) {
+            _mthreads[i] = std::thread(random_read, &_ctxs[i]);
+        } else if (memcmp(_type, "sr", 2) == 0) {
+            _mthreads[i] = std::thread(seq_read, &_ctxs[i]);
         }
     }
 
