@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-04-30 13:55:45
- * @LastEditTime: 2021-04-30 15:35:09
+ * @LastEditTime: 2021-04-30 15:36:12
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /pmdk-demo/libpmem_demo.cc
@@ -72,14 +72,14 @@ static void random_write(worker_context_t* context)
     uint32_t _skip = _bs * 4;
     uint64_t _src = (uint64_t)malloc(_bs);
 
-    printf("[%d][bs:%d][loop:%d][size:%.2fMB]\n", context->thread_id, _bs, g_num_loop, 1.0 * context->size / (1024UL * 1024));
-
+    printf("[%d][bs:%dB][loop:%d][size:%.2fMB]\n", context->thread_id, _bs, g_num_loop, 1.0 * context->size / (1024UL * 1024));
     Timer _timer;
     _timer.Start();
     for (int i = 0; i < g_num_loop; i++) {
         uint64_t _dest = _start;
         while (_dest < _end) {
-            pmem_memcpy_persist((void*)_dest, (void*)_src, _bs);
+            // pmem_memcpy_persist((void*)_dest, (void*)_src, _bs);
+            pmem_memmove_persist((void*)_dest, (void*)_src, _bs);
             // pmem_memmove_nodrain((void*)_dest, (void*)_src, _bs);
             _dest += _skip;
         }
@@ -109,12 +109,14 @@ static void seq_write(worker_context_t* context)
     uint32_t _bs = context->bs;
     uint64_t _src = (uint64_t)malloc(_bs);
 
+    printf("[%d][bs:%dB][loop:%d][size:%.2fMB]\n", context->thread_id, _bs, g_num_loop, 1.0 * context->size / (1024UL * 1024));
     Timer _timer;
     _timer.Start();
     for (int i = 0; i < g_num_loop; i++) {
         uint64_t _dest = _start;
         while (_dest < _end) {
-            pmem_memcpy_persist((void*)_dest, (void*)_src, _bs);
+            // pmem_memcpy_persist((void*)_dest, (void*)_src, _bs);
+            pmem_memmove_persist((void*)_dest, (void*)_src, _bs);
             // pmem_memmove_nodrain((void*)_dest, (void*)_src, _bs);
             _dest += _bs;
         }
