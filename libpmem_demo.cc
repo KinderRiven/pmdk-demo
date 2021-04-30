@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-04-30 13:55:45
- * @LastEditTime: 2021-04-30 16:54:13
+ * @LastEditTime: 2021-04-30 16:58:08
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /pmdk-demo/libpmem_demo.cc
@@ -248,6 +248,8 @@ int main(int argc, char** argv)
         printf("[pmem_map_file][addr:0x%llx][len:%.2fGB][is_pmem:%d]\n", (uint64_t)_base, 1.0 * _len / (1024UL * 1024 * 1024), _is_pmem);
     }
 
+    printf("------------------------------------------\n");
+    printf("[num_thread:%d][bs:%d]\n", g_num_thread, g_block_size);
     worker_context_t _ctxs[64];
     std::thread _mthreads[64];
     for (int i = 0; i < g_num_thread; i++) {
@@ -276,5 +278,6 @@ int main(int argc, char** argv)
     _avg_lat /= g_num_thread;
     printf("[%d][%.2fMB/s][%.2fns]\n", g_num_thread, _total_bw, _avg_lat);
     pmem_unmap(_base, _len);
+    printf("------------------------------------------\n");
     return 0;
 }
