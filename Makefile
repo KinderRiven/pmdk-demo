@@ -1,6 +1,6 @@
 PMDK_LIB := /home/hanshukai/SplitKV/third-party/pmdk
 
-PMDK_LINK_FLAGS := -Wl,--no-whole-archive -L$(PMDK_LIB) -lpmem -lpmemobj -lpmempool
+PMDK_LINK_FLAGS := -Wl,--no-whole-archive -L$(PMDK_LIB) -lpmem
 
 all: clean libpmem_demo
 
