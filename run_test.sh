@@ -1,7 +1,7 @@
 ###
  # @Author: your name
  # @Date: 2021-04-30 16:27:19
- # @LastEditTime: 2021-04-30 18:38:03
+ # @LastEditTime: 2021-04-30 18:38:35
  # @LastEditors: Please set LastEditors
  # @Description: In User Settings Edit
  # @FilePath: /pmdk-demo/run_test.sh
@@ -18,6 +18,7 @@ do
         OUTPUT=${s_type[$i]}_${s_thread[$j]}.result
         for ((k=0; k<${#s_bs[*]}; k+=1))
         do
+        echo "./libpmem_demo --type=${s_type[$i]} --thread=${s_thread[$j]} --bs=${s_bs[$k]} >> $OUTPUT"
         ./libpmem_demo --type=${s_type[$i]} --thread=${s_thread[$j]} --bs=${s_bs[$k]} >> $OUTPUT
         done
     done
