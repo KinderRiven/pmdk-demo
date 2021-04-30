@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-04-30 13:55:45
- * @LastEditTime: 2021-04-30 16:06:18
+ * @LastEditTime: 2021-04-30 16:25:05
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /pmdk-demo/libpmem_demo.cc
@@ -45,6 +45,10 @@ public:
     uint64_t base;
     size_t size;
     uint32_t bs;
+
+public:
+    double bw;
+    double lat;
 };
 
 static int numa_0[] = {
@@ -94,8 +98,12 @@ static void random_write(worker_context_t* context)
     size_t _cnt = _sz / _bs;
     double _sec = _timer.GetSeconds();
     double _lat = _timer.Get() / _cnt;
+    double _iops = 1.0 * _cnt / _sec;
+    double _bw = 1.0 * _sz / (_sec * 1024UL * 1024);
     printf("[%d][cost:%.2fseconds][cnt:%zu][lat:%.2fns][iops:%.2f][bw:%.2fMB/s]\n",
-        context->thread_id, _sec, _cnt, _lat, 1.0 * _cnt / _sec, 1.0 * _sz / (_sec * 1024UL * 1024));
+        context->thread_id, _sec, _cnt, _lat, _iops, _bw);
+    context->lat = _lat;
+    context->bw = _bw;
 }
 
 static void seq_write(worker_context_t* context)
@@ -134,8 +142,12 @@ static void seq_write(worker_context_t* context)
     size_t _cnt = _sz / _bs;
     double _sec = _timer.GetSeconds();
     double _lat = _timer.Get() / _cnt;
+    double _iops = 1.0 * _cnt / _sec;
+    double _bw = 1.0 * _sz / (_sec * 1024UL * 1024);
     printf("[%d][cost:%.2fseconds][cnt:%zu][lat:%.2fns][iops:%.2f][bw:%.2fMB/s]\n",
-        context->thread_id, _sec, _cnt, _lat, 1.0 * _cnt / _sec, 1.0 * _sz / (_sec * 1024UL * 1024));
+        context->thread_id, _sec, _cnt, _lat, _iops, _bw);
+    context->lat = _lat;
+    context->bw = _bw;
 }
 
 int main(int argc, char** argv)
@@ -177,9 +189,16 @@ int main(int argc, char** argv)
             _mthreads[i] = std::thread(seq_write, &_ctxs[i]);
         }
     }
+
+    double _total_bw = 0;
+    double _avg_lat = 0;
     for (int i = 0; i < g_num_thread; i++) {
         _mthreads[i].join();
+        _total_bw += _ctxs[i].bw;
+        _avg_lat += _ctxs[i].lat;
     }
+    _avg_lat /= g_num_thread;
+    printf("[%d][%.2fMB/s][%.2fns]\n", g_num_thread, _total_bw, _avg_lat);
     pmem_unmap(_base, _len);
     return 0;
 }
