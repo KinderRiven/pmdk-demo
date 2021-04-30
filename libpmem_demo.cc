@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-04-30 13:55:45
- * @LastEditTime: 2021-04-30 15:08:39
+ * @LastEditTime: 2021-04-30 15:13:39
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /pmdk-demo/libpmem_demo.cc
@@ -40,9 +40,14 @@
 
 struct worker_context_t {
 public:
+    uint32_t thread_id;
     uint64_t base;
     size_t size;
     uint32_t bs;
+};
+
+static int numa_0[] = {
+    0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 21, 22, 23, 24, 25, 26, 27, 28, 29 //, 11, 13, 15, 17, 19, 31, 33,35, 37, 39
 };
 
 static uint32_t g_num_thread = 4;
@@ -55,13 +60,21 @@ static void random_write(worker_context_t* context)
 
 static void seq_write(worker_context_t* context)
 {
+    cpu_set_t mask;
+    CPU_ZERO(&mask);
+    CPU_SET(numa_0[context->thread_id], &mask);
+
+    if (pthread_setaffinity_np(pthread_self(), sizeof(mask), &mask) < 0) {
+        printf("threadpool, set thread affinity failed.\n");
+    }
+
     uint64_t _start = context->base;
     size_t _end = _start + context->size;
     uint64_t _dest = _start;
     uint32_t _bs = context->bs;
     uint64_t _src = (uint64_t)malloc(_bs);
-    Timer _timer;
 
+    Timer _timer;
     _timer.Start();
     while (_dest < _end) {
         pmem_memcpy_persist((void*)_dest, (void*)_src, _bs);
@@ -73,8 +86,8 @@ static void seq_write(worker_context_t* context)
     size_t _cnt = _sz / _bs;
     double _sec = _timer.GetSeconds();
     double _lat = _timer.Get() / _cnt;
-    printf("[cost:%.2fseconds][cnt:%zu][lat:%.2fns[iops:%.2f][bw:%.2fMB/s]\n",
-        _sec, _cnt, _lat, 1.0 * _cnt / _sec, 1.0 * _sz / (_sec * 1024UL * 1024));
+    printf("[%d][cost:%.2fseconds][cnt:%zu][lat:%.2fns[iops:%.2f][bw:%.2fMB/s]\n",
+        context->thread_id, _sec, _cnt, _lat, 1.0 * _cnt / _sec, 1.0 * _sz / (_sec * 1024UL * 1024));
 }
 
 int main(int argc, char** argv)
@@ -90,11 +103,13 @@ int main(int argc, char** argv)
     worker_context_t _ctxs[64];
     std::thread _mthreads[64];
     for (int i = 0; i < g_num_thread; i++) {
+        _ctxs[i].thread_id = i;
         _ctxs[i].base = (uint64_t)_base + (i * _ctxs[i].size);
         _ctxs[i].size = _len / g_num_thread;
         _ctxs[i].bs = g_block_size;
         _mthreads[i] = std::thread(seq_write, &_ctxs[i]);
     }
+
     for (int i = 0; i < g_num_thread; i++) {
         _mthreads[i].join();
     }
