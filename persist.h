@@ -193,6 +193,7 @@ inline void* nontemporal_store(void* _dest, const void* _src, size_t size)
         dest += 256;
         src += 256;
         size -= 256;
+        asm_sfence();
     }
     if (size >= 128) {
         sse2_movnt2x64b(dest, src);
