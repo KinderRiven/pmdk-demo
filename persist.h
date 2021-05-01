@@ -172,9 +172,12 @@ inline void persist_store(char* dest, char* src, size_t size)
     pflush(dest, size);
 }
 
-inline void nontemporal_store(char* dest, char* src, size_t size)
+inline void* nontemporal_store(void* _dest, const void* _src, size_t size)
 {
+    char* dest = (char*)_dest;
+    const char* src = (char*)_src;
     size_t cnt = (uint64_t)dest & 63;
+
     if (cnt > 0) {
         cnt = 64 - cnt;
         if (cnt > size) {
