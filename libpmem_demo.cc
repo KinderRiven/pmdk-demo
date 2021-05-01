@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-04-30 13:55:45
- * @LastEditTime: 2021-05-01 18:57:18
+ * @LastEditTime: 2021-05-01 19:06:48
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /pmdk-demo/libpmem_demo.cc
@@ -78,12 +78,12 @@ static void random_write(worker_context_t* context)
     uint32_t _skip = _bs * 4;
     uint64_t _src = (uint64_t)aligned_alloc(256UL, _bs);
 
-    fun_write _fun;
-    if (_bs < 256) {
-        _fun = nontemporal_store;
-    } else {
-        _fun = pmem_memcpy_persist;
-    }
+    fun_write _fun = nontemporal_store;
+    // if (_bs < 256) {
+    //     _fun = nontemporal_store;
+    // } else {
+    //     _fun = pmem_memcpy_persist;
+    // }
 
     printf("[rw][%d][0x%llx][bs:%dB][size:%.2fMB]\n", context->thread_id, _start, _bs, 1.0 * context->size / (1024UL * 1024));
     Timer _timer;
@@ -132,12 +132,12 @@ static void seq_write(worker_context_t* context)
     uint32_t _skip = _bs * 4;
     uint64_t _src = (uint64_t)aligned_alloc(256UL, _bs);
 
-    fun_write _fun;
-    if (_bs < 256) {
-        _fun = nontemporal_store;
-    } else {
-        _fun = pmem_memcpy_persist;
-    }
+    fun_write _fun = nontemporal_store;
+    // if (_bs < 256) {
+    //     _fun = nontemporal_store;
+    // } else {
+    //     _fun = pmem_memcpy_persist;
+    // }
 
     printf("[sw][%d][0x%llx][bs:%dB][size:%.2fMB]\n", context->thread_id, _start, _bs, 1.0 * context->size / (1024UL * 1024));
     Timer _timer;
