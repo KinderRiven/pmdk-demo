@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-04-30 13:55:45
- * @LastEditTime: 2021-05-01 17:39:52
+ * @LastEditTime: 2021-05-01 18:57:18
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /pmdk-demo/libpmem_demo.cc
@@ -54,7 +54,8 @@ public:
 static int numa_0[] = {
     0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 21, 22, 23, 24, 25, 26, 27, 28, 29 //, 11, 13, 15, 17, 19, 31, 33,35, 37, 39
 };
-static uint32_t g_num_loop = 5;
+
+static double g_run_time = 30.0;
 static uint32_t g_num_thread = 4;
 static uint32_t g_block_size = 64;
 
@@ -70,6 +71,7 @@ static void random_write(worker_context_t* context)
         printf("threadpool, set thread affinity failed.\n");
     }
 
+    uint64_t _cnt = 0;
     uint64_t _start = context->base;
     uint32_t _bs = context->bs;
     size_t _end = (_start + context->size - _bs);
@@ -83,20 +85,26 @@ static void random_write(worker_context_t* context)
         _fun = pmem_memcpy_persist;
     }
 
-    printf("[rw][%d][0x%llx][bs:%dB][loop:%d][size:%.2fMB]\n", context->thread_id, _start, _bs, g_num_loop, 1.0 * context->size / (1024UL * 1024));
+    printf("[rw][%d][0x%llx][bs:%dB][size:%.2fMB]\n", context->thread_id, _start, _bs, 1.0 * context->size / (1024UL * 1024));
     Timer _timer;
     _timer.Start();
-    for (int i = 0; i < g_num_loop; i++) {
+    while (true) {
+        uint32_t __one_loop_cnt = 0;
         uint64_t _dest = _start;
         while (_dest < _end) {
             _fun((char*)_dest, (char*)_src, _bs);
             _dest += _skip;
+            __one_loop_cnt++;
+        }
+        _cnt += __one_loop_cnt;
+        _timer.Stop();
+        if (_timer.GetSeconds() > g_run_time) {
+            break;
         }
     }
     _timer.Stop();
 
-    size_t _sz = g_num_loop * context->size / 4;
-    size_t _cnt = _sz / _bs;
+    size_t _sz = _cnt * _bs;
     double _sec = _timer.GetSeconds();
     double _lat = _timer.Get() / _cnt;
     double _iops = 1.0 * _cnt / _sec;
@@ -117,9 +125,11 @@ static void seq_write(worker_context_t* context)
         printf("threadpool, set thread affinity failed.\n");
     }
 
+    uint64_t _cnt = 0;
     uint64_t _start = context->base;
     uint32_t _bs = context->bs;
     size_t _end = (_start + context->size - _bs);
+    uint32_t _skip = _bs * 4;
     uint64_t _src = (uint64_t)aligned_alloc(256UL, _bs);
 
     fun_write _fun;
@@ -129,20 +139,26 @@ static void seq_write(worker_context_t* context)
         _fun = pmem_memcpy_persist;
     }
 
-    printf("[sw][%d][0x%llx][bs:%dB][loop:%d][size:%.2fMB]\n", context->thread_id, _start, _bs, g_num_loop, 1.0 * context->size / (1024UL * 1024));
+    printf("[sw][%d][0x%llx][bs:%dB][size:%.2fMB]\n", context->thread_id, _start, _bs, 1.0 * context->size / (1024UL * 1024));
     Timer _timer;
     _timer.Start();
-    for (int i = 0; i < g_num_loop; i++) {
+    while (true) {
+        uint32_t __one_loop_cnt = 0;
         uint64_t _dest = _start;
         while (_dest < _end) {
             _fun((char*)_dest, (char*)_src, _bs);
             _dest += _bs;
+            __one_loop_cnt++;
+        }
+        _cnt += __one_loop_cnt;
+        _timer.Stop();
+        if (_timer.GetSeconds() > g_run_time) {
+            break;
         }
     }
     _timer.Stop();
 
-    size_t _sz = g_num_loop * context->size;
-    size_t _cnt = _sz / _bs;
+    size_t _sz = _cnt * _bs;
     double _sec = _timer.GetSeconds();
     double _lat = _timer.Get() / _cnt;
     double _iops = 1.0 * _cnt / _sec;
@@ -163,26 +179,33 @@ static void random_read(worker_context_t* context)
         printf("threadpool, set thread affinity failed.\n");
     }
 
+    uint64_t _cnt = 0;
     uint64_t _start = context->base;
     uint32_t _bs = context->bs;
     size_t _end = (_start + context->size - _bs);
     uint32_t _skip = _bs * 4;
     uint64_t _src = (uint64_t)aligned_alloc(256UL, _bs);
 
-    printf("[rr][%d][0x%llx][bs:%dB][loop:%d][size:%.2fMB]\n", context->thread_id, _start, _bs, g_num_loop, 1.0 * context->size / (1024UL * 1024));
+    printf("[rr][%d][0x%llx][bs:%dB][size:%.2fMB]\n", context->thread_id, _start, _bs, 1.0 * context->size / (1024UL * 1024));
     Timer _timer;
     _timer.Start();
-    for (int i = 0; i < g_num_loop; i++) {
+    while (true) {
+        uint32_t __one_loop_cnt = 0;
         uint64_t _dest = _start;
         while (_dest < _end) {
             memcpy((char*)_src, (char*)_dest, _bs);
             _dest += _skip;
+            __one_loop_cnt++;
+        }
+        _cnt += __one_loop_cnt;
+        _timer.Stop();
+        if (_timer.GetSeconds() > g_run_time) {
+            break;
         }
     }
     _timer.Stop();
 
-    size_t _sz = g_num_loop * context->size / 4;
-    size_t _cnt = _sz / _bs;
+    size_t _sz = _cnt * _bs;
     double _sec = _timer.GetSeconds();
     double _lat = _timer.Get() / _cnt;
     double _iops = 1.0 * _cnt / _sec;
@@ -203,26 +226,33 @@ static void seq_read(worker_context_t* context)
         printf("threadpool, set thread affinity failed.\n");
     }
 
+    uint64_t _cnt = 0;
     uint64_t _start = context->base;
     uint32_t _bs = context->bs;
     size_t _end = (_start + context->size - _bs);
+    uint32_t _skip = _bs * 4;
     uint64_t _src = (uint64_t)aligned_alloc(256UL, _bs);
 
-    printf("[sr][%d][0x%llx][bs:%dB][loop:%d][size:%.2fMB]\n", context->thread_id, _start, _bs, g_num_loop, 1.0 * context->size / (1024UL * 1024));
+    printf("[sr][%d][0x%llx][bs:%dB][size:%.2fMB]\n", context->thread_id, _start, _bs, 1.0 * context->size / (1024UL * 1024));
     Timer _timer;
     _timer.Start();
-    for (int i = 0; i < g_num_loop; i++) {
+    while (true) {
+        uint32_t __one_loop_cnt = 0;
         uint64_t _dest = _start;
         while (_dest < _end) {
             memcpy((char*)_src, (char*)_dest, _bs);
-            _dest += _bs;
+            _dest += _skip;
+            __one_loop_cnt++;
+        }
+        _cnt += __one_loop_cnt;
+        _timer.Stop();
+        if (_timer.GetSeconds() > g_run_time) {
+            break;
         }
     }
     _timer.Stop();
 
-    size_t _sz = g_num_loop * context->size;
-    size_t _cnt = _sz / _bs;
-
+    size_t _sz = _cnt * _bs;
     double _sec = _timer.GetSeconds();
     double _lat = _timer.Get() / _cnt;
     double _iops = 1.0 * _cnt / _sec;
