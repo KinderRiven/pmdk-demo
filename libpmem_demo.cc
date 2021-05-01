@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-04-30 13:55:45
- * @LastEditTime: 2021-05-01 17:38:15
+ * @LastEditTime: 2021-05-01 17:39:52
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /pmdk-demo/libpmem_demo.cc
@@ -78,9 +78,9 @@ static void random_write(worker_context_t* context)
 
     fun_write _fun;
     if (_bs < 256) {
-        _fun = pmem_memcpy_persist;
-    } else {
         _fun = nontemporal_store;
+    } else {
+        _fun = pmem_memcpy_persist;
     }
 
     printf("[rw][%d][0x%llx][bs:%dB][loop:%d][size:%.2fMB]\n", context->thread_id, _start, _bs, g_num_loop, 1.0 * context->size / (1024UL * 1024));
@@ -124,9 +124,9 @@ static void seq_write(worker_context_t* context)
 
     fun_write _fun;
     if (_bs < 256) {
-        _fun = pmem_memcpy_persist;
-    } else {
         _fun = nontemporal_store;
+    } else {
+        _fun = pmem_memcpy_persist;
     }
 
     printf("[sw][%d][0x%llx][bs:%dB][loop:%d][size:%.2fMB]\n", context->thread_id, _start, _bs, g_num_loop, 1.0 * context->size / (1024UL * 1024));
