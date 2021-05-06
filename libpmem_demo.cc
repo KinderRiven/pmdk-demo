@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-04-30 13:55:45
- * @LastEditTime: 2021-05-01 19:06:48
+ * @LastEditTime: 2021-05-06 18:41:02
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /pmdk-demo/libpmem_demo.cc
@@ -78,7 +78,9 @@ static void random_write(worker_context_t* context)
     uint32_t _skip = _bs * 4;
     uint64_t _src = (uint64_t)aligned_alloc(256UL, _bs);
 
-    fun_write _fun = nontemporal_store;
+    // fun_write _fun = nontemporal_store;
+    fun_write _fun = pmem_memcpy_persist;
+
     // if (_bs < 256) {
     //     _fun = nontemporal_store;
     // } else {
@@ -132,7 +134,9 @@ static void seq_write(worker_context_t* context)
     uint32_t _skip = _bs * 4;
     uint64_t _src = (uint64_t)aligned_alloc(256UL, _bs);
 
-    fun_write _fun = nontemporal_store;
+    // fun_write _fun = nontemporal_store;
+    fun_write _fun = pmem_memcpy_persist;
+
     // if (_bs < 256) {
     //     _fun = nontemporal_store;
     // } else {
@@ -288,7 +292,6 @@ int main(int argc, char** argv)
     if (_base != nullptr) {
         printf("[pmem_map_file][addr:0x%llx][len:%.2fGB][is_pmem:%d]\n", (uint64_t)_base, 1.0 * _len / (1024UL * 1024 * 1024), _is_pmem);
     }
-
     printf("------------------------------------------\n");
     printf("[num_thread:%d][bs:%d]\n", g_num_thread, g_block_size);
     worker_context_t _ctxs[64];
